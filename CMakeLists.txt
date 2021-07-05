@@ -14,12 +14,17 @@ ExternalProject_Add(
   BUILD_COMMAND ""
 INSTALL_COMMAND "" STEP_TARGETS cryptopp-cmake)
 ExternalProject_Get_Property(cryptopp-cmake SOURCE_DIR)
+# Target-Dependent Intrinsics are usually too context-sensitive to be obfuscated and there is almost no guranteed method to handle them properly, except maybe a few naive Obfuscation techniques.
+# Some Obfuscator Implementations I've reversed do naive checks and skips the whole function when any such intrinsic's use exists.
+# This is a bit (re)tardy and too aggressive if you ask me.
+
+# Here we disable such cases
 ExternalProject_Add(
   cryptopp
   URL https://github.com/weidai11/cryptopp/archive/refs/tags/CRYPTOPP_8_5_0.zip
   URL_MD5 62fee41a6ef8395f61ddfb90c69d926a
   DOWNLOAD_NAME cryptopp-CRYPTOPP_8_5_0.zip INSTALL_COMMAND "" TEST_BEFORE_INSTALL ON
-  PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_DIR}/CMakeLists.txt
+  PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_DIR}/CMakeLists.txt CONFIGURE_COMMAND "-DDISABLE_ASM=OFF -DDISABLE_SSSE3=OFF -DDISABLE_SSE4=OFF -DDISABLE_AESNI=OFF -DDISABLE_CLMUL=OFF -DDISABLE_SHA=OFF -DDISABLE_AVX=OFF -DDISABLE_AVX2=OFF -DDISABLE_ARM_NEON=OFF -DDISABLE_ARM_AES=OFF -DDISABLE_ARM_PMULL=OFF -DDISABLE_ARM_SHA=OFF"
 ${SOURCE_DIR}/cryptopp-config.cmake <SOURCE_DIR> DEPENDS cryptopp-cmake )
 
 # curl
